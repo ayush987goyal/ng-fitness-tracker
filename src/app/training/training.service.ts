@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
+import { AngularFirestore } from 'angularfire2/firestore';
 import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
 
 import { Exercise } from './exercise.model';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { Subscription } from 'rxjs/Subscription';
+import { UIService } from '../shared/ui.service';
 
 @Injectable()
 export class TrainingService {
@@ -14,9 +15,10 @@ export class TrainingService {
     private runningExercise: Exercise;
     private fbSubs: Subscription[] = [];
 
-    constructor(private db: AngularFirestore) {}
+    constructor(private db: AngularFirestore, private uiService: UIService) {}
 
     fetchAvailableExercises() {
+        this.uiService.loadingStateChanged.next(true);
         this.fbSubs.push(
             this.db
                 .collection('availableExercises')
@@ -31,10 +33,24 @@ export class TrainingService {
                         };
                     });
                 })
-                .subscribe((exercises: Exercise[]) => {
-                    this.availableExercises = exercises;
-                    this.exercisesChanged.next([...this.availableExercises]);
-                })
+                .subscribe(
+                    (exercises: Exercise[]) => {
+                        this.uiService.loadingStateChanged.next(false);
+                        this.availableExercises = exercises;
+                        this.exercisesChanged.next([
+                            ...this.availableExercises
+                        ]);
+                    },
+                    error => {
+                        this.uiService.loadingStateChanged.next(false);
+                        this.uiService.showSnackbar(
+                            'Fetching Exercises failed, please try again later',
+                            null,
+                            3000
+                        );
+                        this.exerciseChanged.next(null);
+                    }
+                )
         );
     }
 
@@ -75,11 +91,13 @@ export class TrainingService {
     }
 
     fetchCompletedOrCancelledExercises() {
+        this.uiService.loadingStateChanged.next(true);
         this.fbSubs.push(
             this.db
                 .collection('finishedExercises')
                 .valueChanges()
                 .subscribe((exercises: Exercise[]) => {
+                    this.uiService.loadingStateChanged.next(false);
                     this.finishedExercisesChanged.next(exercises);
                 })
         );
