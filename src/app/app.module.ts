@@ -3,11 +3,11 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularFireModule } from 'angularfire2';
+import { AngularFirestoreModule } from 'angularfire2/firestore';
 
 import { MaterialModule } from './material.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthModule } from './auth/auth.module';
-import { TrainingModule } from './training/training.module';
 
 import { AppComponent } from './app.component';
 import { WelcomeComponent } from './welcome/welcome.component';
@@ -34,8 +34,8 @@ import { environment } from '../environments/environment';
         MaterialModule,
         AppRoutingModule,
         AuthModule,
-        TrainingModule,
-        AngularFireModule.initializeApp(environment.firebase)
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFirestoreModule
     ],
     providers: [AuthService, TrainingService, UIService],
     bootstrap: [AppComponent]
