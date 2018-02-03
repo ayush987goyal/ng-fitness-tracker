@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
@@ -17,7 +16,6 @@ import * as fromRoot from '../../app.reducer';
 export class LoginComponent implements OnInit {
     loginForm: FormGroup;
     isLoading$: Observable<boolean>;
-    private loadingSubs: Subscription;
 
     constructor(
         private authService: AuthService,

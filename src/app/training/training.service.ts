@@ -2,9 +2,12 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
+import { Store } from '@ngrx/store';
 
 import { Exercise } from './exercise.model';
 import { UIService } from '../shared/ui.service';
+import * as fromRoot from '../app.reducer';
+import * as UI from '../shared/ui.actions';
 
 @Injectable()
 export class TrainingService {
@@ -15,10 +18,14 @@ export class TrainingService {
     private runningExercise: Exercise;
     private fbSubs: Subscription[] = [];
 
-    constructor(private db: AngularFirestore, private uiService: UIService) {}
+    constructor(
+        private db: AngularFirestore,
+        private uiService: UIService,
+        private store: Store<fromRoot.State>
+    ) {}
 
     fetchAvailableExercises() {
-        this.uiService.loadingStateChanged.next(true);
+        this.store.dispatch(new UI.StartLoading());
         this.fbSubs.push(
             this.db
                 .collection('availableExercises')
@@ -35,14 +42,14 @@ export class TrainingService {
                 })
                 .subscribe(
                     (exercises: Exercise[]) => {
-                        this.uiService.loadingStateChanged.next(false);
+                        this.store.dispatch(new UI.StopLoading());
                         this.availableExercises = exercises;
                         this.exercisesChanged.next([
                             ...this.availableExercises
                         ]);
                     },
                     error => {
-                        this.uiService.loadingStateChanged.next(false);
+                        this.store.dispatch(new UI.StopLoading());
                         this.uiService.showSnackbar(
                             'Fetching Exercises failed, please try again later',
                             null,
@@ -91,13 +98,11 @@ export class TrainingService {
     }
 
     fetchCompletedOrCancelledExercises() {
-        this.uiService.loadingStateChanged.next(true);
         this.fbSubs.push(
             this.db
                 .collection('finishedExercises')
                 .valueChanges()
                 .subscribe((exercises: Exercise[]) => {
-                    this.uiService.loadingStateChanged.next(false);
                     this.finishedExercisesChanged.next(exercises);
                 })
         );
