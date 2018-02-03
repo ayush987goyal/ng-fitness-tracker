@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { StoreModule } from '@ngrx/store';
 
 import { SharedModule } from '../shared/shared.module';
 import { TrainingRoutingModule } from './training-routing.module';
@@ -9,6 +10,8 @@ import { CurrentTrainingComponent } from './current-training/current-training.co
 import { PastTrainingsComponent } from './past-trainings/past-trainings.component';
 import { StopTrainingComponent } from './current-training/stop-training.component';
 
+import { trainingReducer } from './training.reducer';
+
 @NgModule({
     declarations: [
         TrainingComponent,
@@ -17,7 +20,11 @@ import { StopTrainingComponent } from './current-training/stop-training.componen
         PastTrainingsComponent,
         StopTrainingComponent
     ],
-    imports: [SharedModule, TrainingRoutingModule],
+    imports: [
+        SharedModule,
+        TrainingRoutingModule,
+        StoreModule.forFeature('training', trainingReducer)
+    ],
     entryComponents: [StopTrainingComponent]
 })
 export class TrainingModule {}
